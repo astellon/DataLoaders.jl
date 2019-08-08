@@ -1,5 +1,5 @@
 module DataLoaders
 
-greet() = print("Hello World!")
+include("sampler.jl")
 
 end # module
