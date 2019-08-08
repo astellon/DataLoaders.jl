@@ -38,6 +38,7 @@ function Base.iterate(dl::DataLoader, i::Int)
     # i is out if range
     return nothing
   elseif length(dl.dataset) < i+dl.batchsize-1
+    # the remainings is too few
     if !(dl.droplast)
       return getbatch(dl, i, length(dl)), length(dl.dataset)+1
     else
