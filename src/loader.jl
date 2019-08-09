@@ -29,11 +29,6 @@ function getbatch(dl::DataLoader, first::Int, last::Int)
 end
 
 function Base.iterate(dl::DataLoader)
-  if length(dl.dataset) <= 0
-    # if data is empty, return nothing
-    return nothing
-  end
-
   return iterate(dl, 1)
 end
 
