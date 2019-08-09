@@ -1,13 +1,16 @@
+using Distributed
+
 struct DataLoader
   dataset
   batchsize::Int
   shuffle::Bool
   nworkers::Int
+  tasks::Array{Distributed.Future, 1}
   droplast::Bool
 
   function DataLoader(::IndexLinear, dataset::AbstractArray, batchsize::Int,
                       shuffle::Bool=true, nworkers::Int=1, droplast::Bool=false)
-    new(dataset, batchsize, shuffle, nworkers, droplast)
+    new(dataset, batchsize, shuffle, nworkers, Array{Distributed.Future, 1}(), droplast)
   end
 end
 
@@ -21,7 +24,8 @@ Base.length(dl::DataLoader) = first(Base.size(dl))
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
   # TODO: get batch concurently
-  return dl.dataset[first:last]
+  proc(x) = dl.dataset[x]
+  return Distributed.pmap(proc, first:last)
 end
 
 function Base.iterate(dl::DataLoader)
