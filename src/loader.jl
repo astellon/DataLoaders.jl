@@ -10,7 +10,11 @@ struct DataLoader
 
   function DataLoader(::IndexLinear, dataset::AbstractArray, batchsize::Int,
                       shuffle::Bool=true, nworkers::Int=1, droplast::Bool=false)
-    new(dataset, batchsize, shuffle, nworkers, Array{Distributed.Future, 1}(), droplast)
+    if shuffle
+      new(RandomSampler(dataset), batchsize, shuffle, nworkers, Array{Distributed.Future, 1}(), droplast)
+    else
+      new(dataset, batchsize, shuffle, nworkers, Array{Distributed.Future, 1}(), droplast)
+    end
   end
 end
 
@@ -24,11 +28,12 @@ Base.length(dl::DataLoader) = first(Base.size(dl))
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
   # TODO: get batch concurently
-  proc(x) = dl.dataset[x]
+  proc(x) = @inbounds dl.dataset[x]
   return Distributed.pmap(proc, first:last)
 end
 
 function Base.iterate(dl::DataLoader)
+  dl.shuffle && Random.shuffle!(dl.dataset)
   return iterate(dl, 1)
 end
 
