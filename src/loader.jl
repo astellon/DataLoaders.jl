@@ -8,19 +8,22 @@ struct DataLoader
   tasks::Array{Distributed.Future, 1}
   droplast::Bool
 
-  function DataLoader(::IndexLinear, dataset::AbstractArray, batchsize::Int,
+  function DataLoader(::IndexLinear, dataset, batchsize::Int,
                       shuffle::Bool=true, nworkers::Int=1, droplast::Bool=false)
     if shuffle
-      new(RandomSampler(dataset), batchsize, shuffle, nworkers, Array{Distributed.Future, 1}(), droplast)
+      new(RandomSampler(dataset), batchsize, shuffle,
+          nworkers, Array{Distributed.Future, 1}(), droplast)
     else
-      new(dataset, batchsize, shuffle, nworkers, Array{Distributed.Future, 1}(), droplast)
+      new(dataset, batchsize, shuffle,
+          nworkers, Array{Distributed.Future, 1}(), droplast)
     end
   end
 end
 
-function DataLoader(dataset::AbstractArray, batchsize::Int,
+function DataLoader(dataset, batchsize::Int,
                     shuffle::Bool=true, nworkers::Int=1, droplast::Bool=false)
-  DataLoader(IndexStyle(dataset), dataset, batchsize, shuffle, nworkers, droplast)
+  DataLoader(IndexStyle(dataset), dataset,
+             batchsize, shuffle, nworkers, droplast)
 end
 
 Base.size(dl::DataLoader) = size(dl.dataset)
@@ -28,8 +31,8 @@ Base.length(dl::DataLoader) = first(Base.size(dl))
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
   # TODO: get batch concurently
-  proc(x) = @inbounds dl.dataset[x]
-  return Distributed.pmap(proc, first:last)
+  mapper(x) = @inbounds dl.dataset[x]
+  return Distributed.pmap(mapper, first:last)
 end
 
 function Base.iterate(dl::DataLoader)
