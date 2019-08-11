@@ -42,7 +42,7 @@ end
 
 function Base.iterate(dl::DataLoader, i::Int)
   if length(dl.dataset) < i
-    # i is out if range
+    # i is out of range
     return nothing
   elseif length(dl.dataset) < i+dl.batchsize-1
     # the remainings is too few
