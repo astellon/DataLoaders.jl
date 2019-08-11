@@ -4,26 +4,20 @@ struct DataLoader
   dataset
   batchsize::Int
   shuffle::Bool
-  nworkers::Int
   tasks::Array{Distributed.Future, 1}
   droplast::Bool
 
-  function DataLoader(::IndexLinear, dataset, batchsize::Int,
-                      shuffle::Bool=true, nworkers::Int=1, droplast::Bool=false)
+  function DataLoader(::IndexLinear, dataset, batchsize::Int, shuffle::Bool=true, droplast::Bool=false)
     if shuffle
-      new(RandomSampler(dataset), batchsize, shuffle,
-          nworkers, Array{Distributed.Future, 1}(), droplast)
+      new(RandomSampler(dataset), batchsize, shuffle, Array{Distributed.Future, 1}(), droplast)
     else
-      new(dataset, batchsize, shuffle,
-          nworkers, Array{Distributed.Future, 1}(), droplast)
+      new(dataset, batchsize, shuffle, Array{Distributed.Future, 1}(), droplast)
     end
   end
 end
 
-function DataLoader(dataset, batchsize::Int,
-                    shuffle::Bool=true, nworkers::Int=1, droplast::Bool=false)
-  DataLoader(IndexStyle(dataset), dataset,
-             batchsize, shuffle, nworkers, droplast)
+function DataLoader(dataset, batchsize::Int, shuffle::Bool=true, droplast::Bool=false)
+  DataLoader(IndexStyle(dataset), dataset, batchsize, shuffle, droplast)
 end
 
 Base.size(dl::DataLoader) = size(dl.dataset)
