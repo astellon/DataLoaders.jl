@@ -25,8 +25,12 @@ Base.length(dl::DataLoader) = first(Base.size(dl))
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
   # TODO: get batch concurently
-  mapper(x) = @inbounds dl.dataset[x]
-  return Distributed.pmap(mapper, first:last)
+  mapper(x)     = @inbounds dl.dataset[x]
+  reducer(x, y) = @inbounds vcat(x[1], y[1]), @inbounds vcat(x[2], y[2])
+
+  @distributed reducer for i in first:last
+    mapper(i)
+  end
 end
 
 function Base.iterate(dl::DataLoader)
