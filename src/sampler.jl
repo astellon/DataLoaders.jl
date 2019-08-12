@@ -19,9 +19,7 @@ function Base.getindex(sampler::RandomSampler, index::Int)
   sampler.dataset[sampler.transform[index]]
 end
 
-function Base.size(sampler::RandomSampler)
-  Base.size(sampler.dataset)
-end
+Base.size(sampler::RandomSampler) = Base.size(sampler.dataset)
 
 Base.length(sampler::RandomSampler) = @inbounds size(sampler)[1]
 
