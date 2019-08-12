@@ -1,11 +1,11 @@
 import Random
 
-struct RandomSampler{T} <: AbstractArray{T, 1}
+struct RandomSampler
   dataset
   transform::Array{Int64, 1}
 
   function RandomSampler(::IndexLinear, dataset)
-    instance = new{eltype(dataset)}(dataset, collect(1:length(dataset)))
+    instance = new(dataset, collect(1:length(dataset)))
     Random.shuffle!(instance)
     instance
   end
@@ -22,6 +22,10 @@ end
 function Base.size(sampler::RandomSampler)
   Base.size(sampler.dataset)
 end
+
+Base.length(sampler::RandomSampler) = @inbounds size(sampler)[1]
+
+Base.IndexStyle(::RandomSampler) = IndexLinear()
 
 function Random.shuffle!(sampler::RandomSampler)
   Random.shuffle!(sampler.transform)
