@@ -21,6 +21,7 @@ function DataLoader(dataset, batchsize::Int, shuffle::Bool=true, droplast::Bool=
 end
 
 Base.size(dl::DataLoader) = size(dl.dataset)
+
 Base.length(dl::DataLoader) = first(Base.size(dl))
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
