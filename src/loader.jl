@@ -7,7 +7,7 @@ struct DataLoader
   tasks::Array{Distributed.Future, 1}
   droplast::Bool
 
-  function DataLoader(::IndexLinear, dataset, batchsize::Int, shuffle::Bool=true, droplast::Bool=false)
+  function DataLoader(::IndexLinear, dataset, batchsize::Int; shuffle::Bool=true, droplast::Bool=false)
     if shuffle
       new(RandomSampler(dataset), batchsize, shuffle, Array{Distributed.Future, 1}(), droplast)
     else
@@ -16,7 +16,7 @@ struct DataLoader
   end
 end
 
-function DataLoader(dataset, batchsize::Int, shuffle::Bool=true, droplast::Bool=false)
+function DataLoader(dataset, batchsize::Int; shuffle::Bool=true, droplast::Bool=false)
   DataLoader(IndexStyle(dataset), dataset, batchsize, shuffle, droplast)
 end
 
