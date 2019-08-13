@@ -1,4 +1,4 @@
-using Test, Distributed, Random
+using Test, Distributed
 
 # TEMPORARY worker processes for test
 workers = addprocs(4)
