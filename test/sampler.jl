@@ -1,9 +1,9 @@
 using Test, DataLoaders
 
+include("dataset.jl")
+
 @testset "RandomSampler" begin
-  X = rand(1000)
-  Y = rand(1000)
-  dataset = collect(zip(X, Y))
+  dataset = getdataset((10,10), 100)
   sampler = RandomSampler(dataset)
 
   @test sampler.dataset     == dataset
