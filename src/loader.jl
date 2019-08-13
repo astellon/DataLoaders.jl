@@ -25,7 +25,7 @@ Base.size(dl::DataLoader) = size(dl.dataset)
 Base.length(dl::DataLoader) = first(Base.size(dl))
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
-  mapper(x)     = @inbounds dl.dataset[x]
+  mapper(x) = @inbounds dl.dataset[x]
   reducer((x1, x2), (y1, y2)) = vcat(x1, y1), vcat(x2, y2)
 
   @distributed reducer for i in first:last
