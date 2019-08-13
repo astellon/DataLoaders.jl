@@ -25,8 +25,10 @@ Base.size(dl::DataLoader) = size(dl.dataset)
 Base.length(dl::DataLoader) = first(Base.size(dl))
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
+  xdim = length(size(dl.dataset[1][1]))  # dimension of data   (e.g. 2 for image)
+  ydim = length(size(dl.dataset[1][2]))  # demension of target (e.g. 1 for lable)
   mapper(x) = @inbounds dl.dataset[x]
-  reducer((x1, x2), (y1, y2)) = vcat(x1, y1), vcat(x2, y2)
+  reducer((x1, x2), (y1, y2)) = cat(x1, y1; dims=xdim+1), cat(x2, y2, dims=ydim+1)
 
   @distributed reducer for i in first:last
     mapper(i)
