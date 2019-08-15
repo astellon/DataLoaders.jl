@@ -1,5 +1,12 @@
 import Random
 
+"""
+  RandomSampler(dataset)
+
+Random Sampler that enables to get index without any modifications of your dataset.
+
+`dataset` should satisfy `IndexStyle(dataset) == IndexLinear()`. `getindex(dataset, index::Int)` and `size(dataset)` is required too.
+"""
 struct RandomSampler
   dataset
   transform::Array{Int64, 1}

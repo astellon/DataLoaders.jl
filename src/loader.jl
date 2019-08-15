@@ -1,5 +1,14 @@
 using Distributed
 
+"""
+  DataLoader(dataset, batchsize::Int; shuffle::Bool=true, droplast::Bool=false)
+
+Interatable minibatch loader.
+
+`dataset` should satisfy `IndexStyle(dataset) == IndexLinear()`. `getindex(dataset, index::Int)` and `size(dataset)` is required too.
+
+If `droplast` is `true`, last batch whoes size is less than `batchsize` is not iterated.
+"""
 struct DataLoader
   dataset
   batchsize::Int
