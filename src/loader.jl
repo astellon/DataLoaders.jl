@@ -1,5 +1,3 @@
-using Distributed
-
 """
   DataLoader(dataset, batchsize::Int; shuffle::Bool=true, droplast::Bool=false)
 
@@ -12,21 +10,21 @@ If `droplast` is `true`, last batch whoes size is less than `batchsize` is not i
 struct DataLoader
   dataset
   batchsize::Int
+  ntasks::Int
   shuffle::Bool
-  tasks::Array{Distributed.Future, 1}
   droplast::Bool
 
-  function DataLoader(::IndexLinear, dataset, batchsize::Int, shuffle::Bool=true, droplast::Bool=false)
+  function DataLoader(::IndexLinear, dataset, batchsize::Int; ntasks::Int = 1, shuffle::Bool = true, droplast::Bool = false)
     if shuffle
-      new(RandomSampler(dataset), batchsize, shuffle, Array{Distributed.Future, 1}(), droplast)
+      new(RandomSampler(dataset), batchsize, ntasks, shuffle, droplast)
     else
-      new(dataset, batchsize, shuffle, Array{Distributed.Future, 1}(), droplast)
+      new(dataset, batchsize, ntasks, shuffle, droplast)
     end
   end
 end
 
-function DataLoader(dataset, batchsize::Int; shuffle::Bool=true, droplast::Bool=false)
-  DataLoader(IndexStyle(dataset), dataset, batchsize, shuffle, droplast)
+function DataLoader(dataset, batchsize::Int; ntasks::Int = 1, shuffle::Bool = true, droplast::Bool = false)
+  DataLoader(IndexStyle(dataset), dataset, batchsize, ntasks = ntasks, shuffle = shuffle, droplast = droplast)
 end
 
 Base.size(dl::DataLoader) = size(dl.dataset)
@@ -36,12 +34,15 @@ Base.length(dl::DataLoader) = first(Base.size(dl))
 function getbatch(dl::DataLoader, first::Int, last::Int)
   xdim = length(size(dl.dataset[1][1]))  # dimension of data   (e.g. 2 for image)
   ydim = length(size(dl.dataset[1][2]))  # demension of target (e.g. 1 for lable)
-  mapper(x) = @inbounds dl.dataset[x]
-  reducer((x1, x2), (y1, y2)) = cat(x1, y1; dims=xdim+1), cat(x2, y2, dims=ydim+1)
 
-  @distributed reducer for i in first:last
-    mapper(i)
-  end
+  mapper(x) = @inbounds dl.dataset[x]
+
+  batch = asyncmap(mapper, first:last, ntasks = dl.ntasks)
+
+  xs = cat(getindex.(batch, 1)..., dims=xdim+1)
+  ys = cat(getindex.(batch, 2)..., dims=ydim+1)
+
+  return xs, ys
 end
 
 function Base.iterate(dl::DataLoader)
