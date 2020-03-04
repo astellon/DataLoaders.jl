@@ -27,9 +27,9 @@ function DataLoader(dataset, batchsize::Int; ntasks::Int = 1, shuffle::Bool = tr
   DataLoader(IndexStyle(dataset), dataset, batchsize, ntasks = ntasks, shuffle = shuffle, droplast = droplast)
 end
 
-Base.size(dl::DataLoader) = size(dl.dataset)
+Base.size(dl::DataLoader) = (length(dl),)
 
-Base.length(dl::DataLoader) = first(Base.size(dl))
+Base.length(dl::DataLoader) = div(length(dl.dataset), dl.batchsize, dl.droplast ? RoundUp : RoundDown)
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
   xdim = length(size(dl.dataset[1][1]))  # dimension of data   (e.g. 2 for image)
