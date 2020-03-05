@@ -26,9 +26,9 @@ function Base.getindex(sampler::RandomSampler, index::Int)
   sampler.dataset[sampler.transform[index]]
 end
 
-Base.size(sampler::RandomSampler) = Base.size(sampler.dataset)
+Base.size(sampler::RandomSampler) = (length(sampler),)
 
-Base.length(sampler::RandomSampler) = @inbounds size(sampler)[1]
+Base.length(sampler::RandomSampler) = length(sampler.dataset)
 
 Base.IndexStyle(::RandomSampler) = IndexLinear()
 
