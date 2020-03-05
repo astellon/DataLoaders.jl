@@ -7,7 +7,7 @@ include("dataset.jl")
   dataset = getdataset((10,10), 100)
   loader  = DataLoader(dataset, batchsize, ntasks = 8, shuffle=true, droplast=false)
 
-  @test length(loader) == div(100, 16, RoundDown)
+  @test length(loader) == round(Int, 100 / 16, RoundDown)
 
   (x, y), index = iterate(loader)
 

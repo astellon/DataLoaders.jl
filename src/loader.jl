@@ -29,7 +29,7 @@ end
 
 Base.size(dl::DataLoader) = (length(dl),)
 
-Base.length(dl::DataLoader) = div(length(dl.dataset), dl.batchsize, dl.droplast ? RoundUp : RoundDown)
+Base.length(dl::DataLoader) = round(Int, length(dl.dataset) / dl.batchsize, dl.droplast ? RoundUp : RoundDown)
 
 function getbatch(dl::DataLoader, first::Int, last::Int)
   xdim = length(size(dl.dataset[1][1]))  # dimension of data   (e.g. 2 for image)
